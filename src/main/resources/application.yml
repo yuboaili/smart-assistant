@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: smart-assistant
+  
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/smart_assistant?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+  
+  # MyBatis配置
+  mybatis:
+    type-aliases-package: org.example.model
+    configuration:
+      map-underscore-to-camel-case: true
+      lazy-loading-enabled: false
+  
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+# 日志配置
+logging:
+  level:
+    org.example: DEBUG
+    org.example.mapper: DEBUG
+
+ 
