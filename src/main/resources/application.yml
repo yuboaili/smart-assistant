@@ -33,4 +33,8 @@ logging:
     org.example: DEBUG
     org.example.mapper: DEBUG
 
- 
+# Qwen API配置
+qwen:
+  api:
+    key: sk-b621ae11a9e74d7ea81c28ab91c3b9ca
+    url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions

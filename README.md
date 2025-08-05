@@ -1,80 +1,78 @@
 # 智能助手系统 (Smart Assistant)
 
-这是一个基于 Spring Boot 的智能助手系统，提供了智能助手管理和会话管理的功能。系统采用 MyBatis + MySQL 进行数据持久化。
+基于 Spring Boot 的智能助手系统，提供智能助手管理、会话管理和LLM对话功能。采用 MyBatis + MySQL 进行数据持久化。
 
 ## 项目结构
 
 ```
 smart-assistant/
-├── src/
-│   ├── main/
-│   │   ├── java/org/example/
-│   │   │   ├── application/
-│   │   │   │   └── SmartAssistantApplication.java  # 主应用程序类
-│   │   │   ├── model/           # 数据模型
-│   │   │   │   ├── Assistant.java    # 智能助手模型
-│   │   │   │   ├── Session.java      # 会话模型
-│   │   │   │   └── Message.java      # 消息模型
-│   │   │   ├── mapper/          # MyBatis Mapper 接口
-│   │   │   │   ├── AssistantMapper.java
-│   │   │   │   ├── SessionMapper.java
-│   │   │   │   └── MessageMapper.java
-│   │   │   ├── service/         # 业务逻辑层
-│   │   │   │   ├── AssistantService.java
-│   │   │   │   ├── SessionService.java
-│   │   │   │   └── impl/
-│   │   │   │       ├── AssistantServiceImpl.java
-│   │   │   │       └── SessionServiceImpl.java
-│   │   │   └── controller/      # 控制器层
-│   │   │       ├── AssistantController.java
-│   │   │       └── SessionController.java
-│   │   └── resources/
-│   │       └── application.yml  # 配置文件
-│   └── test/                    # 测试代码
-├── pom.xml                      # Maven配置文件
-├── README.md                    # 项目说明文档
-└── api测试文档.md               # API测试文档
+├── src/main/java/org/example/
+│   ├── application/
+│   │   └── SmartAssistantApplication.java
+│   ├── controller/
+│   │   ├── AssistantController.java
+│   │   ├── ChatController.java
+│   │   └── SessionController.java
+│   ├── mapper/
+│   │   ├── AssistantMapper.java
+│   │   ├── MessageMapper.java
+│   │   └── SessionMapper.java
+│   ├── model/
+│   │   ├── Assistant.java
+│   │   ├── ChatRequest.java
+│   │   ├── ChatResponse.java
+│   │   ├── Message.java
+│   │   └── Session.java
+│   └── service/
+│       ├── AssistantService.java
+│       ├── LlmService.java
+│       ├── SessionService.java
+│       └── impl/
+│           ├── AssistantServiceImpl.java
+│           ├── LlmServiceImpl.java
+│           └── SessionServiceImpl.java
+├── src/main/resources/
+│   └── application.yml
+├── pom.xml
+└── README.md
 ```
 
 ## 核心功能
 
-### 1. 智能助手管理 (Assistant)
+### 1. 智能助手管理
 - 创建、查询、更新、删除智能助手
-- 支持助手的基本信息管理（名称、描述等）
-- RESTful API 接口
+- 支持助手的基本信息管理
 
-### 2. 会话管理 (Session)
+### 2. 会话管理
 - 创建和管理用户会话
 - 支持按助手ID查询会话
 - 会话消息管理
 
-### 3. 消息管理 (Message)
-- 在会话中添加和管理消息
-- 支持不同角色的消息（用户、助手）
-- 消息时间戳和状态跟踪
+### 3. LLM对话功能
+- 集成通义千问API
+- 支持多轮对话
+- 可配置模型参数
 
 ## 技术栈
 
 - **框架**: Spring Boot 2.7.0
 - **数据库**: MySQL 8.0
 - **ORM**: MyBatis 3.5
+- **LLM**: 通义千问API
 - **构建工具**: Maven
 - **Java版本**: 11
-- **JSON处理**: Jackson
 
 ## 快速开始
 
 ### 1. 环境要求
-- JDK 11 或更高版本
-- Maven 3.6 或更高版本
-- MySQL 8.0 或更高版本
+- JDK 11+
+- Maven 3.6+
+- MySQL 8.0+
 
 ### 2. 数据库设置
 ```sql
--- 创建数据库
 CREATE DATABASE smart_assistant CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 创建表结构
 CREATE TABLE assistants (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -102,67 +100,136 @@ CREATE TABLE messages (
 );
 ```
 
-### 3. 配置数据库连接
-修改 `src/main/resources/application.yml` 中的数据库连接信息：
+### 3. 配置
+修改 `src/main/resources/application.yml`：
+
 ```yaml
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/smart_assistant?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
     username: root
     password: 123456
+
+qwen:
+  api:
+    key: your-api-key
+    url: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
 ```
 
 ### 4. 运行项目
 ```bash
-# 克隆项目
-git clone <repository-url>
-cd smart-assistant
-
-# 编译项目
 mvn clean compile
-
-# 运行项目
 mvn spring-boot:run
 ```
 
-### 5. 访问应用
-- 应用程序: http://localhost:8080
-- API 文档: 查看下面的 API 接口列表
+访问: http://localhost:8080
 
 ## API 接口
 
-### 智能助手接口
-- `POST /api/assistant/create` - 创建智能助手
-- `GET /api/assistant/getall` - 获取所有助手
-- `GET /api/assistant/get/{id}` - 根据ID获取助手
-- `PUT /api/assistant/update/{id}` - 更新助手信息
-- `DELETE /api/assistant/delete/{id}` - 删除助手
+### 智能助手管理
 
-### 会话接口
-- `POST /api/session/create` - 创建会话
-- `GET /api/session/getbyid/{id}` - 根据ID获取会话
-- `GET /api/session/getbyassistantid/{assistantId}` - 根据助手ID获取会话
-- `DELETE /api/session/delete/{id}` - 删除会话
-- `POST /api/session/addmessage/{sessionId}` - 向会话添加消息
-- `GET /api/session/getallmessages/{sessionId}` - 获取会话的所有消息
+#### 创建智能助手
+**POST** `/api/assistant/create`
+
+```json
+{
+  "name": "智能客服助手",
+  "description": "一个专业的客服智能助手，能够回答用户常见问题"
+}
+```
+
+#### 获取所有助手
+**GET** `/api/assistant/getall`
+
+#### 根据ID获取助手
+**GET** `/api/assistant/get/{id}`
+
+#### 更新助手信息
+**PUT** `/api/assistant/update/{id}`
+
+```json
+{
+  "name": "升级版智能客服助手",
+  "description": "升级后的智能客服助手，具备更强大的问题解决能力"
+}
+```
+
+#### 删除助手
+**DELETE** `/api/assistant/delete/{id}`
+
+### 会话管理
+
+#### 创建会话
+**POST** `/api/session/create`
+
+```json
+{
+  "assistantId": 1
+}
+```
+
+#### 根据ID获取会话
+**GET** `/api/session/getbyid/{id}`
+
+#### 根据助手ID获取会话
+**GET** `/api/session/getbyassistantid/{assistantId}`
+
+#### 删除会话
+**DELETE** `/api/session/delete/{id}`
+
+#### 向会话添加消息
+**POST** `/api/session/addmessage/{sessionId}`
+
+```json
+{
+  "content": "我想了解产品的退货政策",
+  "role": "USER"
+}
+```
+
+#### 获取会话的所有消息
+**GET** `/api/session/getallmessages/{sessionId}`
+
+### LLM对话接口
+
+#### 获取大模型回复
+**POST** `/api/chat`
+
+```json
+{
+  "model": "qwen-turbo",
+  "messages": [
+    {
+      "role": "user",
+      "content": "你好，请介绍一下你自己"
+    }
+  ],
+  "user_id": "test_user",
+  "session_id": "test_session",
+  "lang": "zh-CN",
+  "stream": false,
+  "temperature": 0.7,
+  "max_tokens": 1000
+}
+```
 
 ## 数据模型
 
-### Assistant (智能助手)
+### Assistant
 - `id`: 唯一标识符
 - `name`: 助手名称
 - `description`: 助手描述
 - `createdAt`: 创建时间
 - `updatedAt`: 更新时间
 
-### Session (会话)
+### Session
 - `id`: 唯一标识符
 - `assistantId`: 关联的助手ID
 - `messages`: 消息列表
 - `createdAt`: 创建时间
 - `updatedAt`: 更新时间
 
-### Message (消息)
+### Message
 - `id`: 唯一标识符
 - `sessionId`: 所属会话ID
 - `content`: 消息内容
@@ -170,21 +237,16 @@ mvn spring-boot:run
 - `createdAt`: 创建时间
 - `updatedAt`: 更新时间
 
-## 技术特点
-
-### MyBatis 优势
-- **完全控制 SQL**: 可以写复杂的查询和优化
-- **性能优化**: 支持批量操作和存储过程
-- **灵活性**: 支持动态 SQL 和复杂关联查询
-- **学习曲线**: 对 SQL 熟悉的开发者更容易上手
-
-### 项目特色
-- **三层架构**: Controller -> Service -> Mapper
-- **RESTful API**: 标准的 REST 接口设计
-- **数据持久化**: MySQL 数据库存储
-- **JSON 序列化**: Jackson 处理 JSON 数据
-- **时间戳管理**: 自动管理创建和更新时间
-- **注解驱动**: 使用 MyBatis 注解简化配置
+### ChatRequest
+- `model`: 模型名称
+- `messages`: 消息列表
+- `userId`: 用户ID
+- `sessionId`: 会话ID
+- `lang`: 语言
+- `stream`: 是否流式输出
+- `temperature`: 温度参数
+- `maxTokens`: 最大token数
+- `metadata`: 元数据
 
 ## 开发说明
 
@@ -194,15 +256,3 @@ mvn spring-boot:run
 3. 在 `service` 包中创建业务逻辑接口和实现
 4. 在 `controller` 包中创建 REST 接口
 
-### 数据库配置
-当前使用 MySQL 数据库。如需使用其他数据库，请修改 `application.yml` 中的数据库配置。
-
-### 日志配置
-项目配置了详细的 SQL 日志，可以在控制台查看执行的 SQL 语句：
-```yaml
-logging:
-  level:
-    org.example.mapper: DEBUG
-
-```## 许可证
-本项目采用 MIT 许可证。 

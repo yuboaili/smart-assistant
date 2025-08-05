@@ -17,20 +17,17 @@ public class Message {
     private Integer id;
     private Integer sessionId;
     private String content;
-    private MessageRole role;
+    private String role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public enum MessageRole {
-        USER, ASSISTANT
-    }
 
     public Message() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Message(Integer sessionId, String content, MessageRole role) {
+    public Message(Integer sessionId, String content, String role) {
         this();
         this.sessionId = sessionId;
         this.content = content;
@@ -64,11 +61,11 @@ public class Message {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public MessageRole getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(MessageRole role) {
+    public void setRole(String role) {
         this.role = role;
         this.updatedAt = LocalDateTime.now();
     }
